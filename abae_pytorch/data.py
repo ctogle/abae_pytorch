@@ -11,15 +11,21 @@ import os
 from abae_pytorch.utils import linecount
 
 
+lmtzr = WordNetLemmatizer().lemmatize
+stop = stopwords.words('english')
+token = CountVectorizer().build_tokenizer()
+
+
+def preprocess_sentence(x):
+    return [lmtzr(t) for t in token(x.lower()) if not t in stop]
+
+
 def preprocess(input_path, output_path):
     with open(input_path, 'r') as in_f, open(output_path, 'w') as out_f:
-        lmtzr = WordNetLemmatizer().lemmatize
-        stop = stopwords.words('english')
-        token = CountVectorizer().build_tokenizer()
         lc = linecount(input_path)
         desc = 'preprocessing "%s"' % input_path
         for j, l in tqdm.tqdm(enumerate(in_f), total=lc, desc=desc):
-            tokens = [lmtzr(t) for t in token(l.lower()) if not t in stop]
+            tokens = preprocess_sentence(l)
             n_tokens = len(tokens)
             if len(tokens) > 5 and n_tokens < 100:
                 out_l = ' '.join(tokens)
@@ -111,11 +117,5 @@ class dataloader:
             )
             yield batch
             batches += 1
-
-    #def apply(self, f, split='train', device='cpu', batchsize=100, negsize=20, **kws):
-    #    batches = self.batch_generator(split, device, batchsize, negsize)
-    #    return f(batches)
-
-
 
 
