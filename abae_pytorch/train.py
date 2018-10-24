@@ -32,11 +32,12 @@ def train(ab, dl, device='cuda', epochs=5, epochsize=100,
     plot = plotter()
 
     epoch_losses = collections.defaultdict(list)
+    ab.eval()
     val_loss = validate(ab, dl, device, 'val', epochsize,
                         batchsize, negsize, ortho_reg)
+    ab.train()
     epoch_losses['Training Loss'].append(float('inf'))
     epoch_losses['Validation Loss'].append(val_loss)
-    #ab.sample_aspects(i2w)
     sample_aspects(ab.aspects(), i2w)
     plot(epoch_losses)
 
@@ -63,13 +64,16 @@ def train(ab, dl, device='cuda', epochs=5, epochsize=100,
                     for pg in opt.param_groups:
                         pg['lr'] = lr
 
+        ab.eval()
         val_loss = validate(ab, dl, device, 'val', epochsize,
                             batchsize, negsize, ortho_reg)
+        ab.train()
         epoch_losses['Training Loss'].append(np.mean(train_losses))
         epoch_losses['Validation Loss'].append(val_loss)
-        #ab.sample_aspects(i2w)
         sample_aspects(ab.aspects(), i2w)
         plot(epoch_losses)
+
+    ab.eval()
 
 
 def validate(ab, dl, device='cuda', split='val',
@@ -115,6 +119,6 @@ def sample_aspects(projection, i2w, n=8):
     for j, (projs, index) in enumerate(zip(*projection)):
         index = index[-n:].detach().cpu().numpy()
         words = ', '.join([i2w[i] for i in index])
-        print('Aspect %2d: %s' % (j + 1, words))
+        print('Aspect %2d: %s' % (j, words))
 
 

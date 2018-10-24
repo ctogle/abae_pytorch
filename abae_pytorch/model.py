@@ -41,7 +41,7 @@ class abae(nn.Module):
         e_i = self.E(x).transpose(1, 2)
         a_i = self.attention(e_i)
         z_s = normalize(torch.bmm(e_i, a_i).squeeze(2), dim=-1)
-        p_t = softmax(self.linear(z_s), dim=0)
+        p_t = softmax(self.linear(z_s), dim=1)
         return p_t, z_s
 
     def aspects(self):
