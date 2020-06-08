@@ -13,7 +13,7 @@ class attention(nn.Module):
     def forward(self, e_i):
         y_s = torch.mean(e_i, dim=-1)
         d_i = torch.bmm(e_i.transpose(1, 2), self.M(y_s).unsqueeze(2)).tanh()
-        a_i = d_i / sum(torch.exp(d_i))
+        a_i = torch.exp(d_i) / torch.sum(torch.exp(d_i))
         return a_i.squeeze(1)
 
 
@@ -27,7 +27,8 @@ class abae(nn.Module):
         self.T = nn.Embedding(n_aspects, d_embed)
         self.attention = attention(d_embed)
         self.linear = nn.Linear(d_embed, n_aspects)
-        self.E.weight = nn.Parameter(torch.from_numpy(E), requires_grad=False)
+        #self.E.weight = nn.Parameter(torch.from_numpy(E), requires_grad=False)
+        self.E.weight = nn.Parameter(torch.from_numpy(E), requires_grad=True)
         self.T.weight = nn.Parameter(torch.from_numpy(T), requires_grad=True)
 
     def forward(self, pos, negs):

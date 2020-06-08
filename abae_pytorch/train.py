@@ -60,7 +60,7 @@ def train(ab, dl, device='cuda', epochs=5, epochsize=100,
                 pbar.set_description(d)
 
                 if b * batchsize % 100 == 0:
-                    lr = initial_lr * (1.0 - 1.0 * ((e + 1) * (b + 1)) / (epochs * epochsize))
+                    lr = initial_lr * (1.0 - 1.0 * ((e * epochsize + (b + 1)) / (epochs * epochsize)))
                     for pg in opt.param_groups:
                         pg['lr'] = lr
 
@@ -104,7 +104,7 @@ def plotter(figsize=(8, 4)):
             l = ax.plot(x, y, color=color, label=loss, lw=4, marker='o')
             lines.append(loss)
         ax.legend(lines)
-        ax.semilogy()
+        ax.set_yscale('log')
         ax.set_title('Losses')
         ax.set_xlabel('Epoch')
         ax.set_ylabel('Loss')
